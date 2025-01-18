@@ -193,7 +193,7 @@ namespace OpenSim.Region.Framework.Scenes
             // TODO: These are pending addition of those fields to TaskInventoryItem
             // taskItem.SalePrice = item.SalePrice;
             // taskItem.SaleType = item.SaleType;
-            taskItem.CreationDate = (uint)item.CreationDate;
+            // taskItem.CreationDate = (uint)item.CreationDate;
                 
             bool addFromAllowedDrop;
             if(withModRights)
