@@ -136,6 +136,12 @@ namespace OpenSim.Services.UserAccountService
                             HandleUpdateUsers);
 
                     MainConsole.Instance.Commands.AddCommand("Users", false,
+                            "rename users",
+                            "rename users [<CSV file>]",
+                            "Renames users from a CSV file into OpenSim",
+                            HandleRenameUsers);
+
+                    MainConsole.Instance.Commands.AddCommand("Users", false,
                             "reset user password",
                             "reset user password [<first> [<last> [<password>]]]",
                             "Reset a user password", HandleResetUserPassword);
@@ -567,6 +573,47 @@ namespace OpenSim.Services.UserAccountService
                     userNo++;
                 }
                 MainConsole.Instance.Output("File: {0} loaded,  {1} users added", Path.GetFileName(fileName), userNo);
+            }
+        }
+
+        protected void HandleRenameUsers(string module, string[] cmdparams)
+        {
+            string fileName = "users.csv";
+
+            int userNo = 0;
+            string firstName;
+            string lastName;
+            string userUUID;
+
+            fileName = "Imports/" + fileName;
+
+            // good to go...
+            using (var rd = new StreamReader(fileName))
+            {
+                while (!rd.EndOfStream)
+                {
+                    var userInfo = rd.ReadLine().Split(',');
+                    if (userInfo.Length < 5)
+                    {
+                        MainConsole.Instance.Output("[User Load]: Insufficient details; Skipping " + userInfo);
+                        continue;
+                    }
+                    userUUID = userInfo[0];
+                    firstName = userInfo[1];
+                    lastName = userInfo[2];
+
+                    var userAcct = GetUserAccount(UUID.Zero, userUUID);
+                    if (userAcct != null && (userAcct.FirstName != firstName || userAcct.LastName != lastName))
+                    {
+                        userAcct.FirstName = userInfo[1];
+                        userAcct.LastName = userInfo[2];
+                        StoreUserAccount(userAcct);
+                        MainConsole.Instance.Output("[USER UPDATE]: User " + firstName + " " + lastName + " has been renamed");
+
+                        userNo++;
+                    }
+                }
+                MainConsole.Instance.Output("File: {0} loaded,  {1} users renamed", Path.GetFileName(fileName), userNo);
             }
         }
 
